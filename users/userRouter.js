@@ -19,17 +19,25 @@ router.post('/', (req, res) => {
     });
 });
 
-router.post('/:id/posts', validateUserId, (req, res) => {
-  Post.insert(req.body)
-  .then(post => {
-    res.status(201).json(post)
-  })
-  .catch(error => {
-    console.log(error);
-    res.status(500).json({
-      message: "Error adding post"
-    });
-  });
+router.post('/:id/posts', validatePost, validateUserId, (req, res) => {
+  User.getUserPosts(req.params.id)
+    .then(dbRes => {
+      let body = req.body;
+      body.user_id = req.params.id;
+      Post.insert(body)
+        .then(post => {
+          res.status(201).json(post)
+        })
+        .catch(error => {
+          console.log(error);
+          res.status(500).json({
+            message: "Error adding post"
+          });
+        });
+    })
+    .catch(error => {
+      console.log(error);
+    })
 });
 
 router.get('/', (req, res) => {
@@ -137,25 +145,18 @@ function validateUser(req, res, next) {
 }
 
 function validatePost(req, res, next) {
-  User.getUserPosts(req.params.id)
-    .then(post => {
-      if (post === undefined) {
-        res.status(400).json({
-          message: "missing post data"
-        });
-      }
-      if (post === undefined) {
-        res.status(400).json({
-          message: "missing required text field"
-        });
-      }
-    })
-    .catch(error => {
-      console.log(error);
-      res.status(500).json({
-        message: "mw validate post failure"
-      });
+  const body = req.body;
+  const text = body.text;
+  if (body === undefined) {
+    res.status(400).json({
+      message: "missing post data"
     });
+  }
+  if (text === undefined) {
+    res.status(400).json({
+      message: "missing text"
+    });
+  }
   next();
 }
 
