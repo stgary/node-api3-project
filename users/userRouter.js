@@ -63,7 +63,7 @@ router.get('/:id', validateUserId, (req, res) => {
       res.status(404).json({
         message: "Error getting user"
       });
-    })
+    });
 });
 
 router.get('/:id/posts', validateUserId, (req, res) => {
