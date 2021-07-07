@@ -5,7 +5,7 @@ const router = express.Router();
 const User = require('./userDb.js');
 const Post = require('../posts/postDb.js');
 
-router.post('/', (req, res) => {
+router.post('/', validateUser, (req, res) => {
   console.log(req.body);
   User.insert(req.body)
     .then(user => {
@@ -63,7 +63,7 @@ router.get('/:id', validateUserId, (req, res) => {
       res.status(404).json({
         message: "Error getting user"
       });
-    })
+    });
 });
 
 router.get('/:id/posts', validateUserId, (req, res) => {
